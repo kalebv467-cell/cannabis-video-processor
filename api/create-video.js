@@ -1,11 +1,14 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import fetch from 'node-fetch';
-import fs from 'fs';
-
-const execAsync = promisify(exec);
-
 export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -13,22 +16,18 @@ export default async function handler(req, res) {
   try {
     const { audioData, scriptText, title } = req.body;
     
-    // Create a simple video with audio + background + text overlay
-    const videoPath = await createVideo(audioData, scriptText, title);
-    
+    // For now, just return success - we'll build the video processing
     res.json({ 
       success: true,
-      message: 'Video created successfully',
-      // In production, you'd upload to storage and return URL
+      message: 'Webhook received successfully',
+      receivedData: {
+        hasAudio: !!audioData,
+        hasScript: !!scriptText,
+        hasTitle: !!title
+      }
     });
     
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-
-async function createVideo(audioData, scriptText, title) {
-  // FFmpeg commands to create video
-  // This is a simplified version - full implementation needed
-  return 'video-path';
 }
