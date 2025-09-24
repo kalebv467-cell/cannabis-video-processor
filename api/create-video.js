@@ -5,8 +5,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -14,20 +13,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { audioData, scriptText, title } = req.body;
+    const body = req.body || {};
     
-    // For now, just return success - we'll build the video processing
-    res.json({ 
+    return res.json({ 
       success: true,
       message: 'Webhook received successfully',
-      receivedData: {
-        hasAudio: !!audioData,
-        hasScript: !!scriptText,
-        hasTitle: !!title
-      }
+      timestamp: new Date().toISOString(),
+      receivedFields: Object.keys(body)
     });
     
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 }
